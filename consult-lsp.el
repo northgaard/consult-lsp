@@ -67,13 +67,6 @@
   :group 'tools
   :prefix "consult-lsp-")
 
-;;;; Customization
-
-(defcustom consult-lsp-use-marginalia nil
-  "When non-nil, use the marginalia package for optional
-additional annotations."
-  :type 'boolean)
-
 
 ;;;; Diagnostics
 
@@ -400,8 +393,6 @@ CURRENT-WORKSPACE? has the same meaning as in `lsp-diagnostics'."
 
 (defun consult-lsp--file-symbols-annotate ()
   "Annotation function for `consult-lsp-file-symbols'."
-  (when consult-lsp-use-marginalia
-    (require 'marginalia))
   (let* ((width (length (number-to-string (line-number-at-pos
                                            (point-max)
                                            consult-line-numbers-widen))))
@@ -414,8 +405,9 @@ CURRENT-WORKSPACE? has the same meaning as in `lsp-diagnostics'."
                                    (or (alist-get (get-text-property 0 'consult--type cand)
                                                   consult-lsp--symbols--narrow)
                                        "Other")) 'face 'font-lock-type-face)
-               (when consult-lsp-use-marginalia
-                 (marginalia--documentation (get-text-property 0 'consult--name cand)))))))))
+               (propertize " " 'display '(space :align-to center))
+               (propertize (get-text-property 0 'consult--name cand)
+                           'face 'font-lock-comment-face)))))))
 
 ;;;###autoload
 (defun consult-lsp-file-symbols ()
