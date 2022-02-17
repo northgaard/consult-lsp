@@ -329,6 +329,7 @@ CURRENT-WORKSPACE? has the same meaning as in `lsp-diagnostics'."
        (consult--async-split))
      :prompt "LSP Symbols "
      :require-match t
+     :add-history (list (thing-at-point 'symbol) isearch-string)
      :history t
      :initial (consult--async-split-initial initial)
      :category 'consult-lsp-symbols
@@ -423,6 +424,7 @@ CURRENT-WORKSPACE? has the same meaning as in `lsp-diagnostics'."
    :annotate (consult-lsp--file-symbols-annotate)
    :require-match t
    :sort nil
+   :add-history (list (thing-at-point 'symbol) isearch-string)
    :history '(:input consult--line-history)
    :category 'consult-lsp-file-symbols
    :lookup #'consult--line-match
