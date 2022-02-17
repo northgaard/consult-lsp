@@ -197,6 +197,7 @@ CURRENT-WORKSPACE? has the same meaning as in `lsp-diagnostics'."
     (?s . "Struct")
     (?t . "Type Parameter")
     (?v . "Variable")
+    (?r . "Constructor")
 
     ;; Uppercase classes
     (?A . "Array")
@@ -226,7 +227,7 @@ CURRENT-WORKSPACE? has the same meaning as in `lsp-diagnostics'."
                   (alist-get (lsp:symbol-information-kind symbol-info) lsp-symbol-kinds)
                   consult-lsp--symbols--narrow)))
       (car pair)
-    ?o))
+    (rassoc "Other" consult-lsp--symbols--narrow)))
 
 (defun consult-lsp--symbols--state ()
   "Return a LSP symbol preview function."
@@ -387,7 +388,7 @@ CURRENT-WORKSPACE? has the same meaning as in `lsp-diagnostics'."
                    (consult--buffer-substring beg end 'fontify)
                    marker
                    (1+ line)
-                   'consult--type (lsp:symbol-information-kind symbol)
+                   'consult--type (consult-lsp--symbols--kind-to-narrow symbol)
                    'consult--name (lsp:symbol-information-name symbol))
                   candidates)))))
     (unless candidates
@@ -408,7 +409,7 @@ CURRENT-WORKSPACE? has the same meaning as in `lsp-diagnostics'."
               (concat
                (propertize (format " (%s)"
                                    (alist-get (get-text-property 0 'consult--type cand)
-                                              lsp-symbol-kinds)) 'face 'font-lock-type-face)
+                                              consult-lsp--symbols--narrow)) 'face 'font-lock-type-face)
                (when consult-lsp-use-marginalia
                  (marginalia--documentation (get-text-property 0 'consult--name cand)))))))))
 
@@ -425,6 +426,7 @@ CURRENT-WORKSPACE? has the same meaning as in `lsp-diagnostics'."
    :history '(:input consult--line-history)
    :category 'consult-lsp-file-symbols
    :lookup #'consult--line-match
+   :narrow (consult--type-narrow consult-lsp--symbols--narrow)
    :state (consult--jump-state)))
 
 
