@@ -409,8 +409,9 @@ CURRENT-WORKSPACE? has the same meaning as in `lsp-diagnostics'."
         (list cand (format fmt line)
               (concat
                (propertize (format " (%s)"
-                                   (alist-get (get-text-property 0 'consult--type cand)
-                                              consult-lsp--symbols--narrow)) 'face 'font-lock-type-face)
+                                   (or (alist-get (get-text-property 0 'consult--type cand)
+                                                  consult-lsp--symbols--narrow)
+                                       "Other")) 'face 'font-lock-type-face)
                (when consult-lsp-use-marginalia
                  (marginalia--documentation (get-text-property 0 'consult--name cand)))))))))
 
