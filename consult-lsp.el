@@ -147,18 +147,14 @@ CURRENT-WORKSPACE? has the same meaning as in `lsp-diagnostics'."
   "LSP diagnostic preview."
   (let ((open (consult--temporary-files))
         (jump (consult--jump-state)))
-    (lambda (cand restore)
-      (cond
-       (cand
-        (funcall jump
-                 (consult--position-marker
-                  (and (car cand) (funcall (if restore #'find-file open) (car cand)))
-                  (lsp-translate-line (1+ (lsp:position-line (lsp:range-start (lsp:diagnostic-range (cdr cand))))))
-                  (lsp-translate-column (1+ (lsp:position-character (lsp:range-start (lsp:diagnostic-range (cdr cand)))))))
-                 restore))
-       (restore
-        (funcall jump nil t)
-        (funcall open nil))))))
+    (lambda (action cand)
+      (when (eq action 'exit)
+        (funcall open))
+      (funcall jump action
+               (when cand (consult--position-marker
+                           (and (car cand) (funcall (if (eq action 'finish) #'find-file open) (car cand)))
+                           (lsp-translate-line (1+ (lsp:position-line (lsp:range-start (lsp:diagnostic-range (cdr cand))))))
+                           (lsp-translate-column (1+ (lsp:position-character (lsp:range-start (lsp:diagnostic-range (cdr cand))))))))))))
 
 ;;;###autoload
 (defun consult-lsp-diagnostics (arg)
@@ -228,28 +224,26 @@ CURRENT-WORKSPACE? has the same meaning as in `lsp-diagnostics'."
   "Return a LSP symbol preview function."
   (let ((open (consult--temporary-files))
         (jump (consult--jump-state)))
-    (lambda (cand restore)
-      (when restore
-        (funcall open nil))
-      (when cand
-        (funcall jump
-                 (let* ((location (lsp:symbol-information-location cand))
-                        (uri (lsp:location-uri location)))
-                   (consult--position-marker
-                    (and uri (funcall (if restore #'find-file open) (lsp--uri-to-path uri)))
-                    (thread-first location
-                      (lsp:location-range)
-                      (lsp:range-start)
-                      (lsp:position-line)
-                      (1+)
-                      (lsp-translate-line))
-                    (thread-first location
-                      (lsp:location-range)
-                      (lsp:range-start)
-                      (lsp:position-character)
-                      (1+)
-                      (lsp-translate-column))))
-                 restore)))))
+    (lambda (action cand)
+      (when (eq action 'exit)
+        (funcall open))
+      (funcall jump action
+               (when cand (let* ((location (lsp:symbol-information-location cand))
+                                 (uri (lsp:location-uri location)))
+                            (consult--position-marker
+                             (and uri (funcall (if (eq action 'finish) #'find-file open) (lsp--uri-to-path uri)))
+                             (thread-first location
+                                           (lsp:location-range)
+                                           (lsp:range-start)
+                                           (lsp:position-line)
+                                           (1+)
+                                           (lsp-translate-line))
+                             (thread-first location
+                                           (lsp:location-range)
+                                           (lsp:range-start)
+                                           (lsp:position-character)
+                                           (1+)
+                                           (lsp-translate-column)))))))))
 
 ;; It is an async source because some servers, like rust-analyzer, send a
 ;; max count of results for queries (120 last time checked). Therefore, in
