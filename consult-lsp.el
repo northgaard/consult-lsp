@@ -406,7 +406,7 @@ When ARG is set through prefix, query all workspaces."
                    (consult--buffer-substring beg end 'fontify)
                    marker
                    (1+ line)
-                   consult--tofu-char
+                   marker
                    'consult--type (consult-lsp--symbols--kind-to-narrow symbol)
                    'consult--name (lsp:symbol-information-name symbol))
                   candidates)))))
