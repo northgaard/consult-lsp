@@ -437,7 +437,8 @@ When ARG is set through prefix, query all workspaces."
   "Search symbols defined in current file in a manner similar to `consult-line'."
   (interactive)
   (consult--read
-   (consult--with-increased-gc (consult-lsp--file-symbols-candidates))
+   (consult--slow-operation "Collecting file symbols..."
+     (consult-lsp--file-symbols-candidates))
    :prompt "Go to symbol: "
    :annotate (consult-lsp--file-symbols-annotate)
    :require-match t
